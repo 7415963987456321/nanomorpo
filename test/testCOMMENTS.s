@@ -17,7 +17,6 @@
 {;;; This is a multi-line comment in morpho on one line  ;;;}
 
 ;;;More comments
-;; bad comment
 
 ;;; Many
 ;;; one-line

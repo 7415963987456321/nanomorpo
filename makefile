@@ -14,6 +14,8 @@ test: NanoMorphoLexer.class ./test/test.s
 	java NanoMorphoLexer ./test/testUNICODECHARS.s
 	@echo 'Testing opnames...'
 	java NanoMorphoLexer ./test/testOPNAME.s
+	@echo 'Testing keywords...'
+	java NanoMorphoLexer ./test/testKEYWORDS.s
 	@echo 'Testing morpho code...'
 	java NanoMorphoLexer ./test/testMORPHO.s
 	@echo 'Testing comments...'
