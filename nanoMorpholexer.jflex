@@ -1,14 +1,18 @@
 /**
-	JFlex scanner example based on a scanner for NanoMorpho.
-	Author: Hrafnkell Sigurðarson, 2020
+    JFlex scanner example based on a scanner for NanoMorpho.
+    Authors: Hrafnkell Sigurðarson  <hrs70@hi.is>,
+             Róbert Ingi Huldarsson <rih4@hi.is>,
+             Frosti Grétarsson      <frg17@hi.is>,
+    Date:    jan. 2020.
+    
     Byggt á nanolexer frá Snorra Agnarssyni
 
-	This stand-alone scanner/lexical analyzer can be built and run using:
-		java -jar JFlex-full-1.7.0.jar nanomopholexer.jflex
-		javac NanoMorphoLexer.java
-		java NanoMorphoLexer inputfile > outputfile
-	Also, the program 'make' can be used with the proper 'makefile':
-		make test
+    This stand-alone scanner/lexical analyzer can be built and run using:
+        java -jar JFlex-full-1.7.0.jar nanomopholexer.jflex
+        javac NanoMorphoLexer.java
+        java NanoMorphoLexer inputfile > outputfile
+    Also, the program 'make' can be used with the proper 'makefile':
+        make test
     Which will make the program and run all of the tests in the /test directory.
 */
 
@@ -58,13 +62,13 @@ private static String lexeme;
 
 // This runs the scanner:
 public static void main( String[] args ) throws Exception {
-	NanoMorphoLexer lexer = new NanoMorphoLexer(new FileReader(args[0]));
-	int token = lexer.yylex();
+    NanoMorphoLexer lexer = new NanoMorphoLexer(new FileReader(args[0]));
+    int token = lexer.yylex();
     System.out.println("Token: \t Lexeme:");
-	while( token != 0 ) {
-		System.out.println(""+token+": \t '"+lexeme+"\'");
-		token = lexer.yylex();
-	}
+    while( token != 0 ) {
+        System.out.println(""+token+": \t '"+lexeme+"\'");
+        token = lexer.yylex();
+    }
 }
 
 %}
@@ -87,34 +91,34 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
   /* Lesgreiningarreglur -- Scanning rules */
 
 {_DELIM} {
-	lexeme = yytext();
-	return DELIM;
+    lexeme = yytext();
+    return DELIM;
 }
 
 {_STRING} | {_FLOAT} | {_CHAR} | {_INT} | null | true | false {
-	lexeme = yytext();
-	return LITERAL;
+    lexeme = yytext();
+    return LITERAL;
 }
 
 // Keywords:
 "while" {
-	lexeme = yytext();
-	return WHILE;
+    lexeme = yytext();
+    return WHILE;
 }
 
 "if" {
-	lexeme = yytext();
-	return IF;
+    lexeme = yytext();
+    return IF;
 }
 
 "elsif" {
-	lexeme = yytext();
-	return ELSIF;
+    lexeme = yytext();
+    return ELSIF;
 }
 
 "else" {
-	lexeme = yytext();
-	return ELSE;
+    lexeme = yytext();
+    return ELSE;
 }
 
 "var" {
@@ -124,15 +128,9 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 
 
 "return" {
-	lexeme = yytext();
-	return RETURN;
+    lexeme = yytext();
+    return RETURN;
 }
-
-
-/* {_OPNAME} { */
-/* 	lexeme = yytext(); */
-/* 	return OPNAME; */
-/* } */
 
 {_OPNAME} {
     lexeme = yytext();
@@ -172,28 +170,28 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 }
 
 {_NAME} {
-	lexeme = yytext();
-	return NAME;
+    lexeme = yytext();
+    return NAME;
 }
 
 // Stuff that gets ignored or returns an error:
 
 {_MULTILINECOMMENT} {
     // Uncomment for debugging this function is not supposed to return anything
-	/* lexeme = yytext(); */
-	/* return MULTILINECOMMENT; */ 
+    /* lexeme = yytext(); */
+    /* return MULTILINECOMMENT; */ 
 }
 
 {_COMMENT} {
     // Uncomment for debugging this function is not supposed to return anything
-	/* lexeme = yytext(); */
-	/* return COMMENT; */
+    /* lexeme = yytext(); */
+    /* return COMMENT; */
 }
 
 [ \t\r\n\f] {
 }
 
 . {
-	lexeme = yytext();
-	return ERROR;
+    lexeme = yytext();
+    return ERROR;
 }
