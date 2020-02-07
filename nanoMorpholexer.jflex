@@ -33,25 +33,24 @@ final static int IF = 1001;
 final static int ELSIF = 1002;
 final static int ELSE = 1003;
 final static int NAME = 1004;
-final static int LITERAL = 1006;
-final static int WHILE = 1007;
-final static int RETURN = 1008;
-final static int VAR = 1009;
-final static int COMMENT = 1010;
-final static int MULTILINECOMMENT = 1011;
+final static int LITERAL = 1005;
+final static int WHILE = 1006;
+final static int RETURN = 1007;
+final static int VAR = 1008;
+final static int COMMENT = 1009;
+final static int MULTILINECOMMENT = 1010;
 
 // Opnames
-final static int OPNAME1 = 1005;
+final static int OPNAME1 = 1011;
 final static int OPNAME2 = 1012;
 final static int OPNAME3 = 1013;
 final static int OPNAME4 = 1014;
 final static int OPNAME5 = 1015;
 final static int OPNAME6 = 1016;
 final static int OPNAME7 = 1017;
-final static int OPNAME8 = 1018;
-final static int OPNAME_AND = 1019;
-final static int OPNAME_OR = 1019;
-final static int OPNAME_NOT = 1019;
+final static int OPNAME_AND = 1020;
+final static int OPNAME_OR = 1021;
+final static int OPNAME_NOT = 1022;
 
 
 // A variable that will contain lexemes as they are recognized:
@@ -170,7 +169,6 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
         case '^':
             return OPNAME1;
     }
-    return ERROR;
 }
 
 {_NAME} {
