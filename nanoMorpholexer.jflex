@@ -33,13 +33,25 @@ final static int IF = 1001;
 final static int ELSIF = 1002;
 final static int ELSE = 1003;
 final static int NAME = 1004;
-final static int OPNAME = 1005;
 final static int LITERAL = 1006;
 final static int WHILE = 1007;
 final static int RETURN = 1008;
 final static int VAR = 1009;
 final static int COMMENT = 1010;
 final static int MULTILINECOMMENT = 1011;
+
+// Opnames
+final static int OPNAME1 = 1005;
+final static int OPNAME2 = 1012;
+final static int OPNAME3 = 1013;
+final static int OPNAME4 = 1014;
+final static int OPNAME5 = 1015;
+final static int OPNAME6 = 1016;
+final static int OPNAME7 = 1017;
+final static int OPNAME8 = 1018;
+final static int OPNAME_AND = 1019;
+final static int OPNAME_OR = 1019;
+final static int OPNAME_NOT = 1019;
 
 
 // A variable that will contain lexemes as they are recognized:
@@ -61,31 +73,19 @@ public static void main( String[] args ) throws Exception {
     /* Reglulegar skilgreiningar --  Regular definitions */
 
 _MULTILINECOMMENT = (\{;;; (.*|\n|\r|\t) *;;;\})
-_COMMENT = (;;;.*(\n|\r|\t))
+_COMMENT = (;;;.*)
 _DIGIT   = [0-9]
 _FLOAT   = {_DIGIT}+\.{_DIGIT}+([eE][+-]?{_DIGIT}+)?
 _INT     = {_DIGIT}+
 _STRING  = \"([^\"\\] | \\b | \\t | \\n | \\f | \\r | \\\" | \\\' | \\\\ | (\\[0-3][0-7][0-7]) | \\[0-7][0-7]   | \\[0-7])*\"
 _CHAR    = \'([^\'\\] | \\b | \\t | \\n | \\f | \\r | \\\" | \\\' | \\\\ | (\\[0-3][0-7][0-7]) | (\\[0-7][0-7]) | (\\[0-7]))\'
 _DELIM   = [,;(){}\[\]]
-_OPNAME  = ([\+\:&<>\-*/%!?\~\^|=] | == | -- | \+\+ )
+_OPNAME  = [\+\:&<>\-*/%!?\~\^|=]+
 _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 
 %%
 
   /* Lesgreiningarreglur -- Scanning rules */
-
-{_MULTILINECOMMENT} {
-	lexeme = yytext();
-    // Uncomment for debugging this function is not supposed to return anything
-	// return MULTILINECOMMENT; 
-}
-
-{_COMMENT} {
-	lexeme = yytext();
-    // Uncomment for debugging this function is not supposed to return anything
-	// return COMMENT;
-}
 
 {_DELIM} {
 	lexeme = yytext();
@@ -130,9 +130,47 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 }
 
 
+/* {_OPNAME} { */
+/* 	lexeme = yytext(); */
+/* 	return OPNAME; */
+/* } */
+
 {_OPNAME} {
-	lexeme = yytext();
-	return OPNAME;
+    lexeme = yytext();
+
+    if(lexeme.equals("&&")){
+        return OPNAME_AND;
+    } else if(lexeme.equals("||")){
+        return OPNAME_OR;
+    }   else if(lexeme.equals("!")){
+        return OPNAME_NOT;
+    }
+
+    char firstLetter = lexeme.charAt(0);
+    switch(firstLetter){
+        case '*':
+        case '/':
+        case '%':
+            return OPNAME7;
+        case '+':
+        case '-':
+            return OPNAME6;
+        case '<':
+        case '>':
+        case '=':
+            return OPNAME5;
+        case '&':
+            return OPNAME4;
+        case '|':
+            return OPNAME3;
+        case ':':
+            return OPNAME2;
+        case '?':
+        case '~':
+        case '^':
+            return OPNAME1;
+    }
+    return ERROR;
 }
 
 {_NAME} {
@@ -141,8 +179,18 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 }
 
 // Stuff that gets ignored or returns an error:
-/* ";".*$ { */
-/* } */
+
+{_MULTILINECOMMENT} {
+    // Uncomment for debugging this function is not supposed to return anything
+	/* lexeme = yytext(); */
+	/* return MULTILINECOMMENT; */ 
+}
+
+{_COMMENT} {
+    // Uncomment for debugging this function is not supposed to return anything
+	/* lexeme = yytext(); */
+	/* return COMMENT; */
+}
 
 [ \t\r\n\f] {
 }
