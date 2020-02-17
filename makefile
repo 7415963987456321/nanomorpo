@@ -3,7 +3,7 @@
 all: NanoMorphoLexer.class NanoMorphoParser.class
 
 NanoMorphoParser.class: NanoMorphoParser.java
-	javac NanoMorphoParser.java
+	javac -g NanoMorphoParser.java
 
 NanoMorphoLexer.class: NanoMorphoLexer.java
 	javac NanoMorphoLexer.java

@@ -9,7 +9,6 @@ decl		=	'var', NAME, { ',', NAME }
 			;
 
 expr		=	'return', expr
-			|	NAME, '=', expr
 			|	orexpr
 			;
 
@@ -43,14 +42,16 @@ binopexpr6	=	binopexpr7, { OPNAME6, binopexpr7 }
 binopexpr7	=	smallexpr, { OPNAME7, smallexpr }
 			;
 
-smallexpr	=	NAME
-			|	NAME, '(', [ expr, { ',', expr } ], ')'
-			|	opname, smallexpr
+smallexpr	=	opname, smallexpr
 			| 	LITERAL 
 			|	'(', expr, ')'
 			|	ifexpr
 			|	'while', '(', expr, ')', body
 			;
+
+smallexpr_name 	= NAME
+				|	NAME, '(', [ expr, { ',', expr } ], ')'
+				|	NAME, '=', expr
 
 opname		=	OPNAME1
 			|	OPNAME2

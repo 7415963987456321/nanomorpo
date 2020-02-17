@@ -159,12 +159,6 @@ public class NanoMorphoParser {
             return true;
         }
 
-        if (accept(NanoMorphoLexer.NAME)) {
-            expect(NanoMorphoLexer.OPNAME5, "=");
-            if (!expr()) parseError();
-            return true;
-        }
-
         else if (orexpr()) {
             return true;
         }
@@ -312,23 +306,14 @@ public class NanoMorphoParser {
     }
 
     /* 
-        smallexpr	=	NAME, ['(', [ expr, { ',', expr } ], ')']
-                    |	opname, smallexpr
+        smallexpr	=	opname, smallexpr
                     | 	LITERAL
                     |	'(', expr, ')'
                     |	ifexpr
                     |	'while', '(', expr, ')', body
      */
     private boolean smallexpr() {
-        if (accept(NanoMorphoLexer.NAME)) {
-            if (accept(NanoMorphoLexer.DELIM, "(")) {
-                if (expr()) {
-                    while (accept(NanoMorphoLexer.DELIM, ",")) {
-                        if (!expr()) parseError();
-                    }
-                }
-                expect(NanoMorphoLexer.DELIM, ")");
-            }
+        if (smallexpr_2()) {
             return true;
         }
 
@@ -352,6 +337,34 @@ public class NanoMorphoParser {
             if (!expr()) parseError();
             expect(NanoMorphoLexer.DELIM, ")");
             if (!body()) parseError();
+            return true;
+        }
+
+        return false;
+    }
+
+
+    /* 
+        smallexpr_name 	=   NAME
+				        |	NAME, '(', [ expr, { ',', expr } ], ')'
+                        |	NAME, '=', expr
+     */
+    private boolean smallexpr_2() {
+        if (accept(NanoMorphoLexer.NAME)) {
+            if (accept(NanoMorphoLexer.DELIM, "(")) {
+                if (expr()) {
+                    while (accept(NanoMorphoLexer.DELIM, ",")) {
+                        if (!expr()) parseError();
+                    }
+                }
+                expect(NanoMorphoLexer.DELIM, ")");
+                return true;
+            }
+
+            if (accept(NanoMorphoLexer.OPNAME5, "=")) {
+                if (!expr()) parseError();
+            }
+            
             return true;
         }
 
