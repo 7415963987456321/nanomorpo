@@ -1,0 +1,71 @@
+program		=	{ function }
+			;
+
+function	= 	NAME, '(', [ NAME, { ',', NAME } ] ')'
+				'{', { decl, ';' }, { expr, ';' }, '}'
+			;
+
+decl		=	'var', NAME, { ',', NAME }
+			;
+
+expr		=	'return', expr
+			|	orexpr
+			;
+
+orexpr		=	andexpr, [ '||', orexpr ]
+			;
+
+andexpr		=	notexpr, [ '&&', andexpr ]
+			;
+
+notexpr		=	'!', notexpr | binopexpr1
+			;
+
+binopexpr1	=	binopexpr2, { OPNAME1 binopexpr2 }
+			;
+
+binopexpr2	=	binopexpr3, [ OPNAME2, binopexpr2 ]
+			;
+
+binopexpr3	=	binopexpr4, { OPNAME3, binopexpr4 }
+			;
+
+binopexpr4	=	binopexpr5, { OPNAME4, binopexpr5 }
+			;
+
+binopexpr5	=	binopexpr6, { OPNAME5, binopexpr6 }
+			;
+
+binopexpr6	=	binopexpr7, { OPNAME6, binopexpr7 }
+			;
+
+binopexpr7	=	smallexpr, { OPNAME7, smallexpr }
+			;
+
+smallexpr	=	opname, smallexpr
+			| 	LITERAL 
+			|	'(', expr, ')'
+			|	ifexpr
+			|	'while', '(', expr, ')', body
+			;
+
+smallexpr_name 	= NAME
+				|	NAME, '(', [ expr, { ',', expr } ], ')'
+				|	NAME, '=', expr
+
+opname		=	OPNAME1
+			|	OPNAME2
+			|	OPNAME3
+			|	OPNAME4
+			|	OPNAME5
+			|	OPNAME6
+			|	OPNAME7
+			;
+
+ifexpr 		=	'if', '(', expr, ')' body, 
+				{ 'elsif', '(', expr, ')', body }, 
+				[ 'else', body ]
+			;
+
+body		=	'{', { expr, ';' }, '}'
+			;

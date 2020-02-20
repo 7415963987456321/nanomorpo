@@ -22,6 +22,8 @@ import java.io.*;
 
 %public
 %class NanoMorphoLexer
+%line
+%column
 %unicode
 %byaccj
 
@@ -31,34 +33,35 @@ import java.io.*;
 // the class, NanoMorphoLexer.java, that is generated.
 
 // Definitions of tokens:
-final static int ERROR = -1;
-final static int DELIM = 1000;
-final static int IF = 1001;
-final static int ELSIF = 1002;
-final static int ELSE = 1003;
-final static int NAME = 1004;
-final static int LITERAL = 1005;
-final static int WHILE = 1006;
-final static int RETURN = 1007;
-final static int VAR = 1008;
-final static int COMMENT = 1009;
-final static int MULTILINECOMMENT = 1010;
+public final static int ERROR = -1;
+public final static int DELIM = 1000;
+public final static int IF = 1001;
+public final static int ELSIF = 1002;
+public final static int ELSE = 1003;
+public final static int NAME = 1004;
+public final static int LITERAL = 1005;
+public final static int WHILE = 1006;
+public final static int RETURN = 1007;
+public final static int VAR = 1008;
+public final static int EOF = 9999;
+
 
 // Opnames
-final static int OPNAME1 = 1011;
-final static int OPNAME2 = 1012;
-final static int OPNAME3 = 1013;
-final static int OPNAME4 = 1014;
-final static int OPNAME5 = 1015;
-final static int OPNAME6 = 1016;
-final static int OPNAME7 = 1017;
-final static int OPNAME_AND = 1020;
-final static int OPNAME_OR = 1021;
-final static int OPNAME_NOT = 1022;
+public final static int OPNAME1 = 1011;
+public final static int OPNAME2 = 1012;
+public final static int OPNAME3 = 1013;
+public final static int OPNAME4 = 1014;
+public final static int OPNAME5 = 1015;
+public final static int OPNAME6 = 1016;
+public final static int OPNAME7 = 1017;
+public final static int OPNAME_AND = 1020;
+public final static int OPNAME_OR = 1021;
+public final static int OPNAME_NOT = 1022;
 
 
 // A variable that will contain lexemes as they are recognized:
-private static String lexeme;
+private String lexeme;
+private int token;
 
 // This runs the scanner:
 public static void main( String[] args ) throws Exception {
@@ -66,9 +69,43 @@ public static void main( String[] args ) throws Exception {
     int token = lexer.yylex();
     System.out.println("Token: \t Lexeme:");
     while( token != 0 ) {
-        System.out.println(""+token+": \t '"+lexeme+"\'");
+        System.out.println(""+token+": \t '"+lexer.getLexeme()  +"\'");
         token = lexer.yylex();
     }
+}
+
+public static NanoMorphoLexer newLexer(String fileName) throws FileNotFoundException, IOException {
+    NanoMorphoLexer lexer = new NanoMorphoLexer(new FileReader(fileName));
+    lexer.next();
+    return lexer;
+    
+}
+
+public void next() throws IOException {
+    this.token = this.yylex();
+    this.lexeme = this.yytext();
+}
+
+public int getToken() {
+    return this.token;
+}
+
+public int getLine() {
+    return this.yyline + 1;
+}
+
+public int getColumn() {
+    return this.yycolumn + 1;
+}
+
+public String getLexeme() {
+    return this.lexeme;
+}
+
+public String state() {
+    return "Line: " + (this.yyline+1) + 
+    ", column: " + (this.yycolumn+1) +
+    ". Found: " + this.yytext();
 }
 
 %}
@@ -82,7 +119,7 @@ _FLOAT   = {_DIGIT}+\.{_DIGIT}+([eE][+-]?{_DIGIT}+)?
 _INT     = {_DIGIT}+
 _STRING  = \"([^\"\\] | \\b | \\t | \\n | \\f | \\r | \\\" | \\\' | \\\\ | (\\[0-3][0-7][0-7]) | \\[0-7][0-7]   | \\[0-7])*\"
 _CHAR    = \'([^\'\\] | \\b | \\t | \\n | \\f | \\r | \\\" | \\\' | \\\\ | (\\[0-3][0-7][0-7]) | (\\[0-7][0-7]) | (\\[0-7]))\'
-_DELIM   = [,;(){}\[\]]
+_DELIM   = [=,;(){}\[\]]
 _OPNAME  = [\+\:&<>\-*/%!?\~\^|=]+
 _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 
@@ -177,15 +214,13 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 // Stuff that gets ignored or returns an error:
 
 {_MULTILINECOMMENT} {
-    // Uncomment for debugging this function is not supposed to return anything
-    /* lexeme = yytext(); */
-    /* return MULTILINECOMMENT; */ 
 }
 
 {_COMMENT} {
-    // Uncomment for debugging this function is not supposed to return anything
-    /* lexeme = yytext(); */
-    /* return COMMENT; */
+}
+
+<<EOF>> {
+    return EOF;
 }
 
 [ \t\r\n\f] {
