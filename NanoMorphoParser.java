@@ -92,6 +92,7 @@ public class NanoMorphoParser {
      * @return
      */
     private void expect(int token, String lexeme) {
+
         if (!accept(token, lexeme)) {
             error("Error in line: " + lexer.getLine() + " in column: " + lexer.getColumn() + 
             ". Found '" + lexer.getLexeme() + "' but expected '"+ lexeme + "'.");
@@ -104,8 +105,11 @@ public class NanoMorphoParser {
     */
     private boolean program() {
         while (function()) { /* Þátta næstu */ }
-        
+        expect(NanoMorphoLexer.EOF);
+
         return true;
+
+        
     }
 
     /*  
@@ -150,7 +154,6 @@ public class NanoMorphoParser {
 
     /* 
         expr    =	'return', expr
-                |	NAME, '=', expr
                 |	orexpr
     */
     private boolean expr() {
@@ -361,7 +364,7 @@ public class NanoMorphoParser {
                 return true;
             }
 
-            if (accept(NanoMorphoLexer.OPNAME5, "=")) {
+            if (accept(NanoMorphoLexer.DELIM, "=")) {
                 if (!expr()) parseError();
             }
             

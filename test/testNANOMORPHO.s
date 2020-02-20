@@ -1,7 +1,7 @@
 ;;; NanoMorpho prufuskjal
 
 main () {
-    var john, cena;
+    var john, cena, sum;
     var isCool;
 
 
@@ -24,19 +24,35 @@ fun(x) {
             x = tail(x);
         };
     y;
-};
+}
 
 fun(f,lst)
 {
-        lst==null && (return []);
+        ;;; lst==null && (return []]);
             f(head(lst)) : map(f,tail(lst));
-};
+}
 
-main = fun()
+fun()
 {
         var lst;
         var f;
-        f = fun(x) { x*x; };
+       ;;; f = fun(x) { x*x; };
 
         writeln(map(f,lst));
-};
+}
+
+fun(){
+   t = 4 * 3;
+    return 1:2:3:4:null;
+}
+
+fun(){
+    if(1&&2){
+        return 123;
+    } elsif(1==2 || 3==4 && 1==1 && !test){
+        return null;
+    } else {
+        return 1234;
+        x = 1 && 2;
+    };
+}

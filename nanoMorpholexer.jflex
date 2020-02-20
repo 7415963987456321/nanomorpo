@@ -43,8 +43,8 @@ public final static int LITERAL = 1005;
 public final static int WHILE = 1006;
 public final static int RETURN = 1007;
 public final static int VAR = 1008;
-public final static int COMMENT = 1009;
-public final static int MULTILINECOMMENT = 1010;
+public final static int EOF = 9999;
+
 
 // Opnames
 public final static int OPNAME1 = 1011;
@@ -119,7 +119,7 @@ _FLOAT   = {_DIGIT}+\.{_DIGIT}+([eE][+-]?{_DIGIT}+)?
 _INT     = {_DIGIT}+
 _STRING  = \"([^\"\\] | \\b | \\t | \\n | \\f | \\r | \\\" | \\\' | \\\\ | (\\[0-3][0-7][0-7]) | \\[0-7][0-7]   | \\[0-7])*\"
 _CHAR    = \'([^\'\\] | \\b | \\t | \\n | \\f | \\r | \\\" | \\\' | \\\\ | (\\[0-3][0-7][0-7]) | (\\[0-7][0-7]) | (\\[0-7]))\'
-_DELIM   = [,;(){}\[\]]
+_DELIM   = [=,;(){}\[\]]
 _OPNAME  = [\+\:&<>\-*/%!?\~\^|=]+
 _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 
@@ -214,15 +214,13 @@ _NAME    = [:letter:]([:letter:]|{_DIGIT})*
 // Stuff that gets ignored or returns an error:
 
 {_MULTILINECOMMENT} {
-    // Uncomment for debugging this function is not supposed to return anything
-    /* lexeme = yytext(); */
-    /* return MULTILINECOMMENT; */ 
 }
 
 {_COMMENT} {
-    // Uncomment for debugging this function is not supposed to return anything
-    /* lexeme = yytext(); */
-    /* return COMMENT; */
+}
+
+<<EOF>> {
+    return EOF;
 }
 
 [ \t\r\n\f] {
