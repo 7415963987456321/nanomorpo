@@ -3,8 +3,6 @@
 // Last Changed: 16.02.2020
 // Author:       Frosti Grétarsson
 
-   
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -14,7 +12,6 @@ public class NanoMorphoParser {
     public NanoMorphoParser() {
         
     }
-
 
     /**
      * Prentar villustreng og stöðvar keyrslu
@@ -97,7 +94,6 @@ public class NanoMorphoParser {
             error("Error in line: " + lexer.getLine() + " in column: " + lexer.getColumn() + 
             ". Found '" + lexer.getLexeme() + "' but expected '"+ lexeme + "'.");
         }
-        
     }
 
     /* 
@@ -108,8 +104,6 @@ public class NanoMorphoParser {
         expect(NanoMorphoLexer.EOF);
 
         return true;
-
-        
     }
 
     /*  
@@ -145,10 +139,8 @@ public class NanoMorphoParser {
             while ( accept(NanoMorphoLexer.DELIM, ",") ) {
                 expect(NanoMorphoLexer.NAME); 
             }
-            
             return true;
         }
-
         return false;
     }
 
@@ -161,11 +153,9 @@ public class NanoMorphoParser {
             if (!expr()) parseError();
             return true;
         }
-
         else if (orexpr()) {
             return true;
         }
-
         return false;
     }
 
@@ -179,7 +169,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
     
@@ -194,7 +183,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
 
@@ -234,7 +222,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
     
@@ -248,7 +235,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
 
@@ -262,7 +248,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
 
@@ -276,7 +261,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
 
@@ -290,7 +274,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
 
@@ -304,7 +287,6 @@ public class NanoMorphoParser {
             }
             return true;
         }
-
         return false;
     }
 
@@ -367,10 +349,8 @@ public class NanoMorphoParser {
             if (accept(NanoMorphoLexer.DELIM, "=")) {
                 if (!expr()) parseError();
             }
-            
             return true;
         }
-
         return false;
     }
 
@@ -393,7 +373,6 @@ public class NanoMorphoParser {
         if (accept(NanoMorphoLexer.OPNAME7)) return true;
 
         return false;
-
     }
 
 
@@ -419,10 +398,8 @@ public class NanoMorphoParser {
             if (accept(NanoMorphoLexer.ELSE)) {
                 if (!body()) parseError();
             }
-
             return true;
         }
-
         return false;
     }
 
@@ -439,9 +416,6 @@ public class NanoMorphoParser {
         return true;
     }
 
-    
-
-   
 
     /**
      * Þáttar forritstexta sem finnst í skjali @fileName
