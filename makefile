@@ -26,9 +26,13 @@ test: NanoMorphoLexer.class ./test/test.s
 	@echo 'This should return blank since comments are ignored...'
 	java NanoMorphoLexer ./test/testCOMMENTS.s
 
-parse:
+parse: NanoMorphoLexer.class NanoMorphoParser.class
+	@echo 'Testing parser'
 	java NanoMorphoParser test/testNANOMORPHO.s
-	java NanoMorphoParser test/testNANOMORPHOFAIL.s
+	@echo 'Testing parser: þetta test ætti að skila villu'
+	@java NanoMorphoParser test/testNANOMORPHOFAIL.s
+	@java NanoMorphoParser test/testNANOMORPHOFAIL2.s
+	@java NanoMorphoParser test/testNANOMORPHOFAIL3.s
 
 debug:
 	jdb NanoMorphoParser test/testNANOMORPHO.s

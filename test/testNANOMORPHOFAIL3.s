@@ -8,10 +8,8 @@ main () {
             doStuff();
         };
         sum = 20 + 30 - 40;
-    ;;; setjum villu hér fyrir neðan:
-    };}
-    return sausages;
+    };
+    return hamburgers;
 }
-
-        writeln(map(f,lst));
+        writeln(map(f,lst))
 }

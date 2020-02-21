@@ -68,7 +68,7 @@ public static void main( String[] args ) throws Exception {
     NanoMorphoLexer lexer = new NanoMorphoLexer(new FileReader(args[0]));
     int token = lexer.yylex();
     System.out.println("Token: \t Lexeme:");
-    while( token != 0 ) {
+    while( token != EOF ) {
         System.out.println(""+token+": \t '"+lexer.getLexeme()  +"\'");
         token = lexer.yylex();
     }

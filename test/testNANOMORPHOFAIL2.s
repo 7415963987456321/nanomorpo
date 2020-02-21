@@ -1,5 +1,6 @@
 ;;; NanoMorpho prufuskjal, þetta skjal ætti að skila villu í parser
-main () {
+;;; Setjum villu hér:
+main ( {
     var john, cena;
     var isNotCool;
 
@@ -8,10 +9,8 @@ main () {
             doStuff();
         };
         sum = 20 + 30 - 40;
-    ;;; setjum villu hér fyrir neðan:
-    };}
-    return sausages;
+    };
+    return;
 }
-
-        writeln(map(f,lst));
+        writeln(map(f,lst))
 }
