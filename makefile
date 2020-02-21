@@ -28,6 +28,7 @@ test: NanoMorphoLexer.class ./test/test.s
 
 parse:
 	java NanoMorphoParser test/testNANOMORPHO.s
+	java NanoMorphoParser test/testNANOMORPHOFAIL.s
 
 debug:
 	jdb NanoMorphoParser test/testNANOMORPHO.s
