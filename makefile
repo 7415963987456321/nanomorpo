@@ -1,9 +1,12 @@
 # Makefile for the nano-morpho lexer assignmet
 # Author:  Hrafnkell Sigurðarson <hrs70@hi.is>
-all: NanoMorphoLexer.class NanoMorphoParser.class
+all: NanoMorphoLexer.class NanoMorphoParser.class NanoMorphoCompiler.class
 
 NanoMorphoParser.class: NanoMorphoParser.java
 	javac -g NanoMorphoParser.java
+
+NanoMorphoCompiler.class: NanoMorphoCompiler.java
+	javac -g NanoMorphoCompiler.java
 
 NanoMorphoLexer.class: NanoMorphoLexer.java
 	javac NanoMorphoLexer.java
@@ -33,6 +36,9 @@ parse: NanoMorphoLexer.class NanoMorphoParser.class
 	@java NanoMorphoParser test/testNANOMORPHOFAIL.s
 	@java NanoMorphoParser test/testNANOMORPHOFAIL2.s
 	@java NanoMorphoParser test/testNANOMORPHOFAIL3.s
+
+compile: NanoMorphoCompiler.class
+	java NanoMorphoCompiler test/testNANOMORPHO.s
 
 debug:
 	jdb NanoMorphoParser test/testNANOMORPHO.s

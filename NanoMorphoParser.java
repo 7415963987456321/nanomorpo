@@ -5,10 +5,14 @@
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Vector;
+
 
 public class NanoMorphoParser {
     private NanoMorphoLexer lexer;
-
+    private int lastToken;
+    private String lastLexeme;
+    private Vector<String> vars;
     public NanoMorphoParser() {
         
     }
@@ -38,6 +42,8 @@ public class NanoMorphoParser {
     private boolean accept(int token) {
         if (lexer.getToken() == token) {
             try {
+                lastToken = lexer.getToken();
+                lastLexeme = lexer.getLexeme();
                 lexer.next();
                 return true;
             } catch (IOException e) {
@@ -58,6 +64,8 @@ public class NanoMorphoParser {
         if (lexer.getToken() == token) {
             if (lexeme.equals(lexer.getLexeme())) {
                 try {
+                    lastToken = lexer.getToken();
+                    lastLexeme = lexer.getLexeme();
                     lexer.next();
                     return true;
                 } catch (IOException e) {
@@ -89,205 +97,292 @@ public class NanoMorphoParser {
      * @return
      */
     private void expect(int token, String lexeme) {
-
         if (!accept(token, lexeme)) {
             error("Error in line: " + lexer.getLine() + " in column: " + lexer.getColumn() + 
             ". Found '" + lexer.getLexeme() + "' but expected '"+ lexeme + "'.");
         }
     }
 
+    int varPos(String name)
+    {
+        for (int i = 0; i < vars.size(); i++) {
+            if(vars.get(i).equals(name)) return i;
+        }
+        error("Variable "+name+" is not defined");
+        return -1;
+    }
+
     /* 
         program		=	{ function } 
     */
-    private boolean program() {
-        while (function()) { /* Þátta næstu */ }
+    private Object[] program() {
+        Vector<Object> f = new Vector<>();
+        Object[] fun = function();
+        while (fun != null) {
+            f.add(fun);
+            fun = function();
+        }
         expect(NanoMorphoLexer.EOF);
 
-        return true;
+        //generateProgram(f);
+        return f.toArray();
     }
 
     /*  
         function	= 	NAME, '(', [ NAME, { ',', NAME } ] ')'
         '{', { decl, ';' }, { expr, ';' }, '}' 
     */
-    private boolean function() {
+    private Object[] function() {
         if (accept(NanoMorphoLexer.NAME)) {
+            String functionName = lastLexeme;
+            Vector<Object> fun = new Vector<>();
+            int argCount = 0;
+            int varCount = 0;
+            vars = new Vector<>();
             expect(NanoMorphoLexer.DELIM, "(");
             if (accept(NanoMorphoLexer.NAME)) {
-                while(accept(NanoMorphoLexer.DELIM, ","))
+                vars.add(lastLexeme);
+                argCount++;
+                while(accept(NanoMorphoLexer.DELIM, ",")) {
+                    argCount++;
                     expect(NanoMorphoLexer.NAME);
+                    vars.add(lastLexeme);
+                }
             }
             expect(NanoMorphoLexer.DELIM, ")");
             expect(NanoMorphoLexer.DELIM, "{");
 
-            while (decl()) expect(NanoMorphoLexer.DELIM, ";");
-            while (expr()) expect(NanoMorphoLexer.DELIM, ";");
+            int varDecls = decl();
+            while (varDecls > 0) {
+                varCount += varDecls;
+                expect(NanoMorphoLexer.DELIM, ";");
+                varDecls = decl();
+            }
+            
+            Vector<Object> expressions = new Vector<>();
+            Object[] ex = expr();
+            while (ex != null) {
+                expressions.add(ex);
+                expect(NanoMorphoLexer.DELIM, ";");
+                ex = expr();
+            }
+
 
             expect(NanoMorphoLexer.DELIM, "}");
-            return true;
-        }
+            return new Object[] {functionName, argCount, varCount, expressions.toArray()};
 
-        return false;
-    } 
+        };
+
+        return null;
+    }
 
     /* 
         decl	= 'var', NAME, { ',', NAME }
     */
-    private boolean decl() {
+    private int decl() {
+        int decls = 0;
         if (accept(NanoMorphoLexer.VAR)) {
             expect(NanoMorphoLexer.NAME);
+            decls++;
+            vars.add(lastLexeme);
             while ( accept(NanoMorphoLexer.DELIM, ",") ) {
-                expect(NanoMorphoLexer.NAME); 
+                expect(NanoMorphoLexer.NAME);
+                decls++;
+                vars.add(lastLexeme);
             }
-            return true;
         }
-        return false;
+        return decls;
     }
 
     /* 
-        expr    =	'return', expr
+        expr    =	'return', orexpr
                 |	orexpr
     */
-    private boolean expr() {
+    private Object[] expr() {
+        Object[] ex = null;
         if (accept(NanoMorphoLexer.RETURN)) {
-            if (!expr()) parseError();
-            return true;
+            ex = orexpr();
+            if (ex == null) parseError();
         }
-        else if (orexpr()) {
-            return true;
+        else {
+            ex = orexpr();
         }
-        return false;
+        return ex;
     }
 
     /* 
         orexpr	=	andexpr, [ '||', orexpr ]
     */
-    private boolean orexpr() {
-        if (andexpr()) {
+    private Object[] orexpr() {
+        Object[] ex = andexpr();
+        if (ex != null) {
             if (accept(NanoMorphoLexer.OPNAME_OR)) {
-                if (!orexpr()) parseError();
+                Object[] ex2 = orexpr();
+                if (ex2 == null) parseError();
+                return new Object[] {"OR", ex, ex2};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
     
 
     /*
         andexpr	= notexpr, [ '&&', andexpr ]
     */
-    private boolean andexpr() {
-        if (notexpr()) {
+    private Object[] andexpr() {
+        Object[] ex = notexpr();
+        if (ex != null) {
             if (accept((NanoMorphoLexer.OPNAME_AND))) {
-                if (!andexpr()) parseError();
+                Object[] ex2 = andexpr();
+                if (ex2 == null) parseError();
+                return new Object[] {"AND", ex, ex2};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
 
     /* 
         notexpr		=	'!', notexpr | binopexpr1
      */
-    private boolean notexpr() {
+    private Object[] notexpr() {
+        Object[] ex = null;
         if (accept(NanoMorphoLexer.OPNAME_NOT)) {
-            if (!notexpr()) parseError();
-            return true;
+            ex = notexpr();
+            if (ex == null) parseError();
+            return new Object[] {"NOT", ex};
         }
-        if (binopexpr1()) return true;
 
-        return false;
+        ex = binopexpr1();
+        if (ex != null) return ex;
+
+        return null;
     }
 
     /* 
         binopexpr1	=	binopexpr2, { OPNAME1 binopexpr2 }
      */
-    private boolean binopexpr1() {
-        if (binopexpr2()) {
+    private Object[] binopexpr1() {
+        Object[] ex = binopexpr2();
+        if (ex != null) {
             while (accept(NanoMorphoLexer.OPNAME1)) {
-                if (!binopexpr2()) parseError();
+                String op = lastLexeme;
+                Object[] ex2 = binopexpr2();
+                if (ex2 == null) parseError();
+                Object[] args = new Object[] {ex, ex2};
+                ex = new Object[] {"CALL", op, args};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
 
     /* 
         binopexpr2	=	binopexpr3, [ OPNAME2, binopexpr2 ]
      */
-    private boolean binopexpr2() {
-        if (binopexpr3()) {
+    private Object[] binopexpr2() {
+        Object[] ex = binopexpr3();
+        if (ex != null) {
             if (accept(NanoMorphoLexer.OPNAME2)) {
-                if (!binopexpr2()) parseError();
+                Object[] ex2 = binopexpr2();
+                if (ex2 == null) parseError();
+                Object[] args = new Object[] { ex, ex2};
+                ex = new Object[] {"CALL", ":", args};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
     
     /* 
         binopexpr3 = binopexpr4, { OPNAME3, binopexpr4 }
      */
-    private boolean binopexpr3() {
-        if (binopexpr4()) {
+    private Object[] binopexpr3() {
+        Object[] ex = binopexpr4();
+        if (ex != null) {
             while(accept(NanoMorphoLexer.OPNAME3)) {
-                if (!binopexpr4()) parseError();
+                String op = lastLexeme;
+                Object[] ex2 = binopexpr4();
+                if (ex2 == null) parseError();
+                Object[] args = {ex, ex2};
+                ex = new Object[] {"CALL", op, args};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
 
     /* 
         binopexpr4	=	binopexpr5, { OPNAME4, binopexpr5 }
      */
-    private boolean binopexpr4() {
-        if (binopexpr5()) {
+    private Object[] binopexpr4() {
+        Object[] ex = binopexpr5();
+        if (ex != null) {
             while(accept(NanoMorphoLexer.OPNAME4)) {
-                if (!binopexpr5()) parseError();
+                String op = lastLexeme;
+                Object[] ex2 = binopexpr5();
+                if (ex2 == null) parseError();
+                Object[] args = new Object[] {ex, ex2};
+                ex = new Object[] {"CALL", op, args};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
 
     /*
         binopexpr5	=	binopexpr6, { OPNAME5, binopexpr6 }
     */
-    private boolean binopexpr5() {
-        if (binopexpr6()) {
+    private Object[] binopexpr5() {
+        Object[] ex = binopexpr6();
+        if (ex != null) {
             while(accept(NanoMorphoLexer.OPNAME5)) {
-                if (!binopexpr6()) parseError();
+                String op = lastLexeme;
+                Object[] ex2 = binopexpr6();
+                if (ex2 == null) parseError();
+                Object[] args = new Object[] {ex, ex2};
+                ex = new Object[] {"CALL", op, args};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
 
     /*
         binopexpr6	=	binopexpr7, { OPNAME6, binopexpr7 }
     */
-    private boolean binopexpr6() {
-        if (binopexpr7()) {
+    private Object[] binopexpr6() {
+        Object[] ex = binopexpr7();
+        if (ex != null) {
             while(accept(NanoMorphoLexer.OPNAME6)) {
-                if (!binopexpr7()) parseError();
+                String op = lastLexeme;
+                Object[] ex2 = binopexpr7();
+                if (ex2 == null) parseError();
+                Object[] args = new Object[] {ex, ex2};
+                ex = new Object[] {"CALL", op, args};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
 
     /*
         binopexpr7	=	smallexpr, { OPNAME7, smallexpr }
     */
-    private boolean binopexpr7() {
-        if (smallexpr()) {
+    private Object[] binopexpr7() {
+        Object[] ex = smallexpr();
+        if (ex != null) {
             while(accept(NanoMorphoLexer.OPNAME7)) {
-                if (!smallexpr()) parseError();
+                String op = lastLexeme;
+                Object[] ex2 = smallexpr();
+                if (ex2 == null) parseError();
+                Object[] args = new Object[] {ex, ex2};
+                ex = new Object[] {"CALL", op, args};
             }
-            return true;
+            return ex;
         }
-        return false;
+        return null;
     }
 
     /* 
@@ -297,35 +392,46 @@ public class NanoMorphoParser {
                     |	ifexpr
                     |	'while', '(', expr, ')', body
      */
-    private boolean smallexpr() {
-        if (smallexpr_2()) {
-            return true;
+    private Object[] smallexpr() {
+        Object[] ex = smallexpr_2();
+        if (ex != null) {
+            return ex;
         }
+
 
         if (opname()) {
-            if (!smallexpr()) parseError();
-            return true;
+            String op = lastLexeme;
+            ex = smallexpr();
+            if (ex == null) parseError();
+            Object[] args = new Object[] {ex};
+            return new Object[] {"CALL", op, args};
         }
 
-        if (accept(NanoMorphoLexer.LITERAL)) return true;
+        if (accept(NanoMorphoLexer.LITERAL)) return new Object[] {"LITERAL", lastLexeme};
 
         if (accept(NanoMorphoLexer.DELIM, "(")) {
-            if (!expr()) parseError();
+            ex = expr();
+            if (ex ==null) parseError();
             expect(NanoMorphoLexer.DELIM, ")");
-            return true;
+            return ex;
         }
 
-        if (ifexpr()) return true;
+        ex = ifexpr();
+        if (ex != null) {
+            return ex;
+        }
 
         if (accept(NanoMorphoLexer.WHILE)) {
             expect(NanoMorphoLexer.DELIM, "(");
-            if (!expr()) parseError();
+            ex = expr();
+            if (ex == null) parseError();
             expect(NanoMorphoLexer.DELIM, ")");
-            if (!body()) parseError();
-            return true;
+            Object[] bod = body();
+            if (bod == null) parseError();
+            return new Object[] {"WHILE", ex, bod};
         }
 
-        return false;
+        return null;
     }
 
 
@@ -334,24 +440,37 @@ public class NanoMorphoParser {
 				        |	NAME, '(', [ expr, { ',', expr } ], ')'
                         |	NAME, '=', expr
      */
-    private boolean smallexpr_2() {
+    private Object[] smallexpr_2() {
         if (accept(NanoMorphoLexer.NAME)) {
+            Object[] ex = null;
+            Vector<Object> args = new Vector<>();
+            String name = lastLexeme;
             if (accept(NanoMorphoLexer.DELIM, "(")) {
-                if (expr()) {
+                ex = expr();
+                if (ex != null) {
+                    args.add(ex);
                     while (accept(NanoMorphoLexer.DELIM, ",")) {
-                        if (!expr()) parseError();
+                        ex = expr();
+                        if (ex == null) parseError();
+                        args.add(ex);
                     }
                 }
                 expect(NanoMorphoLexer.DELIM, ")");
-                return true;
+
+                return new Object[] {"CALL", name, args.toArray()};
+            }
+            
+            else if (accept(NanoMorphoLexer.DELIM, "=")) {
+                ex = expr();
+                int pos = varPos(name);
+                if (ex == null) parseError();
+                return new Object[] {"STORE", pos, ex};
             }
 
-            if (accept(NanoMorphoLexer.DELIM, "=")) {
-                if (!expr()) parseError();
-            }
-            return true;
+            return new Object[] {"FETCH", varPos(name)};
         }
-        return false;
+
+        return null;
     }
 
     /* 
@@ -381,39 +500,56 @@ public class NanoMorphoParser {
 				    { 'elsif', '(', expr, ')', body }, 
                     [ 'else', body ]
     */
-    private boolean ifexpr() {
+    private Object[] ifexpr() {
+        Object[] ifex = null;
         if (accept(NanoMorphoLexer.IF)) {
             expect(NanoMorphoLexer.DELIM, "(");
-            if (!expr()) parseError();
+            Object[] ex1 = expr();
+            if (ex1 == null) parseError();
             expect(NanoMorphoLexer.DELIM, ")");
-            if (!body()) parseError();
-            
+            Object[] ex2 = body();
+            if (ex2 == null) parseError();
+            ifex = new Object[] {"IF", ex1, ex2, null};
+
+            Object[] tail = ifex;
             while (accept(NanoMorphoLexer.ELSIF)) {
                 expect(NanoMorphoLexer.DELIM, "(");
-                if (!expr()) parseError();
+                ex1 = expr();
+                if (ex1 == null) parseError();
                 expect(NanoMorphoLexer.DELIM, ")");
-                if (!body()) parseError();
+                ex2 = body();
+                if (ex2 == null) parseError();
+                Object[] elif = new Object[] {"IF", ex1, ex2, null};
+                tail[3] = elif;
+                tail = elif;
             }
 
             if (accept(NanoMorphoLexer.ELSE)) {
-                if (!body()) parseError();
+                Object[] ex3 = body();
+                if (ex3 == null) parseError();
+                tail[3] = ex3;
             }
-            return true;
+
+            return ifex;
         }
-        return false;
+        return null;
     }
 
     /* 
         body = '{', { expr, ';' }, '}'
      */
-    private boolean body() {
+    private Object[] body() {
+        Vector<Object> exprs = new Vector<>();
         expect(NanoMorphoLexer.DELIM, "{");
-        while (expr()) { 
+        Object ex = expr();
+        while (ex != null) { 
+            exprs.add(ex);
             expect(NanoMorphoLexer.DELIM, ";");
+            ex = expr();
         }
         expect(NanoMorphoLexer.DELIM, "}");
 
-        return true;
+        return exprs.toArray();
     }
 
 
@@ -424,7 +560,7 @@ public class NanoMorphoParser {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    public boolean parse(String fileName)throws FileNotFoundException, IOException{
+    public Object[] parse(String fileName)throws FileNotFoundException, IOException{
         this.lexer = NanoMorphoLexer.newLexer(fileName);
         return program();
     }

@@ -13,11 +13,12 @@ main () {
         sum = 20 + 30 - 40;
     };
 
-    return hamburgers;
+    return cena;
 
 }
 
-fun(x) {
+fun1(x) {
+        var y;
         while( x )
         {
             y = head(x) : y;
@@ -26,13 +27,13 @@ fun(x) {
     y;
 }
 
-fun(f,lst)
+fun2(f,lst)
 {
         ;;; lst==null && (return []]);
             f(head(lst)) : map(f,tail(lst));
 }
 
-fun()
+fun3()
 {
         var lst;
         var f;
@@ -41,12 +42,14 @@ fun()
         writeln(map(f,lst));
 }
 
-fun(){
-   t = 4 * 3;
+fun4(){
+    var t;
+    t = 4 * 3;
     return 1:2:3:4:null;
 }
 
-fun(){
+fun5(test){
+    var x;
     if(1&&2){
         return 123;
     } elsif(1==2 || 3==4 && 1==1 && !test){
