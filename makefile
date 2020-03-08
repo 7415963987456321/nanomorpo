@@ -13,7 +13,7 @@ NanoMorphoLexer.class: NanoMorphoLexer.java
 NanoMorphoLexer.java: nanoMorpholexer.jflex
 	java -jar jflex-full-1.7.0.jar nanoMorpholexer.jflex
 clean:
-	rm -Rf *~ NanoMorpho*.class NanoMorphoLexer.java
+	rm -Rf *~ NanoMorpho*.class NanoMorphoLexer.java *.masm *.mexe
 
 # This will compile the lexer and run several tests
 test: NanoMorphoLexer.class ./test/test.s
@@ -38,7 +38,11 @@ parse: NanoMorphoLexer.class NanoMorphoParser.class
 	@java NanoMorphoParser test/testNANOMORPHOFAIL3.s
 
 compile: NanoMorphoCompiler.class
-	java NanoMorphoCompiler test/testNANOMORPHO.s
+	@java NanoMorphoCompiler test/testNANOMORPHO.s > testNANOMORPHO.masm
+	@java -jar morpho.jar -c testNANOMORPHO.masm
+
+run:	testNANOMORPHO.mexe
+	java -jar morpho.jar testNANOMORPHO
 
 debug:
 	jdb NanoMorphoParser test/testNANOMORPHO.s

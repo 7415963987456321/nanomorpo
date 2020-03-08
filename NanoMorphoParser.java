@@ -203,6 +203,7 @@ public class NanoMorphoParser {
         if (accept(NanoMorphoLexer.RETURN)) {
             ex = orexpr();
             if (ex == null) parseError();
+            return new Object[] {"RETURN", ex};
         }
         else {
             ex = orexpr();
@@ -549,7 +550,7 @@ public class NanoMorphoParser {
         }
         expect(NanoMorphoLexer.DELIM, "}");
 
-        return exprs.toArray();
+        return new Object[] {"BODY", exprs.toArray()};
     }
 
 

@@ -3,43 +3,40 @@
 main () {
     var john, cena, sum;
     var isCool;
-
-
-    while (true) {
-        if (6 == 7) {
-            doStuff();
-        };
-
-        sum = 20 + 30 - 40;
-    };
-
-    return cena;
-
+    
+    writeln(fun3(4));
+    cena = 20; sum = 30;
+    fun1(cena, sum);
 }
 
-fun1(x) {
-        var y;
-        while( x )
+fun1(x, y) {
+        var bool;
+
+        bool = true;
+        while((x < y) && bool )
         {
-            y = head(x) : y;
-            x = tail(x);
+            writeln(x);
+            x = x + 1;
         };
-    y;
 }
 
 fun2(f,lst)
 {
+    var ls;
         ;;; lst==null && (return []]);
-            f(head(lst)) : map(f,tail(lst));
 }
 
-fun3()
+fun3(x)
 {
-        var lst;
-        var f;
-       ;;; f = fun(x) { x*x; };
+        if (x == 1) {
+            return 5;
+        } elsif (x == 2) {
+            return 6;
+        } elsif (x == 3) {
+            return 7;
+        };
 
-        writeln(map(f,lst));
+        return -1;
 }
 
 fun4(){
