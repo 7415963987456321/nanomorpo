@@ -11,7 +11,8 @@
  | Name:  | Status  |  File
  |---|---|---|
  Lexer           | :heavy_check_mark: | nanoMorpholexer.jflex 
- Parser          |                    | 
+ Parser          | :heavy_check_mark: | nanoMorphoParser.java
+ Compiler        |                    | nanoMorphoCompiler.java
  Documentation   |                    |
 
 
