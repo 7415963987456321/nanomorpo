@@ -40,9 +40,12 @@ parse: NanoMorphoLexer.class NanoMorphoParser.class
 compile: NanoMorphoCompiler.class
 	@java NanoMorphoCompiler test/testNANOMORPHO.s > testNANOMORPHO.masm
 	@java -jar morpho.jar -c testNANOMORPHO.masm
+	@java NanoMorphoCompiler test/testFIBO.s > testFIBO.masm
+	@java -jar morpho.jar -c testFIBO.masm
 
-run:	testNANOMORPHO.mexe
+run: testNANOMORPHO.mexe testFIBO.mexe
 	java -jar morpho.jar testNANOMORPHO
+	java -jar morpho.jar testFIBO
 
 debug:
 	jdb NanoMorphoParser test/testNANOMORPHO.s
