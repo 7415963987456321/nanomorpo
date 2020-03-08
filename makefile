@@ -1,16 +1,19 @@
 # Makefile for the nano-morpho lexer assignmet
 # Author:  Hrafnkell Sigurðarson <hrs70@hi.is>
-all: NanoMorphoLexer.class NanoMorphoParser.class
+all: NanoMorphoLexer.class NanoMorphoParser.class NanoMorphoCompiler.class
 
 NanoMorphoParser.class: NanoMorphoParser.java
 	javac -g NanoMorphoParser.java
+
+NanoMorphoCompiler.class: NanoMorphoCompiler.java
+	javac -g NanoMorphoCompiler.java
 
 NanoMorphoLexer.class: NanoMorphoLexer.java
 	javac NanoMorphoLexer.java
 NanoMorphoLexer.java: nanoMorpholexer.jflex
 	java -jar jflex-full-1.7.0.jar nanoMorpholexer.jflex
 clean:
-	rm -Rf *~ NanoMorpho*.class NanoMorphoLexer.java
+	rm -Rf *~ NanoMorpho*.class NanoMorphoLexer.java *.masm *.mexe
 
 # This will compile the lexer and run several tests
 test: NanoMorphoLexer.class ./test/test.s
@@ -33,6 +36,13 @@ parse: NanoMorphoLexer.class NanoMorphoParser.class
 	@java NanoMorphoParser test/testNANOMORPHOFAIL.s
 	@java NanoMorphoParser test/testNANOMORPHOFAIL2.s
 	@java NanoMorphoParser test/testNANOMORPHOFAIL3.s
+
+compile: NanoMorphoCompiler.class
+	@java NanoMorphoCompiler test/testNANOMORPHO.s > testNANOMORPHO.masm
+	@java -jar morpho.jar -c testNANOMORPHO.masm
+
+run:	testNANOMORPHO.mexe
+	java -jar morpho.jar testNANOMORPHO
 
 debug:
 	jdb NanoMorphoParser test/testNANOMORPHO.s
