@@ -67,7 +67,6 @@ public class NanoMorphoCompiler {
                     generateExpression((Object[]) expr[3]);
                 }
                 emit("_%d:", labEnd);
-                
                 return;
             case "WHILE":
                 int loopLabel = newLabel();
@@ -116,11 +115,8 @@ public class NanoMorphoCompiler {
                 return;
             default:
                 throw new Error(String.format("Unknown command code: %s", code));
-
-
         }
     }
-
 
     public void generateJump(Object[] expr, int labTrue, int labFalse) {
         String code = (String) expr[0];
@@ -232,13 +228,11 @@ public class NanoMorphoCompiler {
         }
     }
 
-
-
     public static void main(String[] args) {
         NanoMorphoCompiler compiler = new NanoMorphoCompiler();
         NanoMorphoParser parser = new NanoMorphoParser();
         String name = args[0].substring(args[0].lastIndexOf("/")+1, args[0].lastIndexOf("."));
-        
+
         try {
             Object[] program = parser.parse(args[0]);
             compiler.generateProgram(name, program);
@@ -247,6 +241,5 @@ public class NanoMorphoCompiler {
         } catch (IOException e) {
             System.err.println("Error reading file");
         }
-        
     }
 }
